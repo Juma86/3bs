@@ -5,12 +5,14 @@ set -xe
 echo 'Installing 3bs into local directory...'
 
 cd `dirname $0` # Typically .3bs
-    cp Parent/* ../ -r
+    cp Parent/* ../ -fr
     rm -fr Parent
 cd -
 
 rm LICENSE
 rm README.md
+
+rm -fr .git
 
 rm $0 # Remove this install script: typically .3bs/install
 echo '3bs installed.'
