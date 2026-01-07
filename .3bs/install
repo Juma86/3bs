@@ -11,8 +11,20 @@ cd -
 
 rm LICENSE
 rm README.md
-
 rm -fr .git
 
+
+
 rm $0 # Remove this install script: typically .3bs/install
+
+# Create a git repository if git is available.
+if command -v git &> /dev/null
+then
+    echo "Initializing git repository..."
+    git init
+    git add .
+    git commit -m "Initial commit."
+    echo "Git repository initialized."
+fi
+
 echo '3bs installed.'
