@@ -1,0 +1,12 @@
+#!/bin/sh
+
+set -xe
+
+function main() {
+    echo "Hello from .3bs/Parent/3bs"
+
+    return 0
+}
+
+main "$@"
+exit $?
