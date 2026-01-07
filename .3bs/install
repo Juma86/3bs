@@ -1,0 +1,16 @@
+#!/bin/sh
+
+echo 'Installing 3bs into local directory...'
+cd `dirname $0`
+
+ln .gitignore Parent/.gitignore
+unlink .gitignore
+rm install
+rm LICENSE
+rm README.md
+
+cp Parent/* ../ -r
+rm -fr Parent
+
+cd -
+echo '3bs installed.'
