@@ -1,16 +1,16 @@
 #!/bin/sh
 
-echo 'Installing 3bs into local directory...'
-cd `dirname $0`
+set -xe
 
-ln .gitignore Parent/.gitignore
-unlink .gitignore
-rm install
+echo 'Installing 3bs into local directory...'
+
+echo `dirname $0` # Typically .3bs
+    cp Parent/* ../ -r
+    rm -fr Parent
+cd -
+
 rm LICENSE
 rm README.md
 
-cp Parent/* ../ -r
-rm -fr Parent
-
-cd -
+rm $0 # Remove this install script: typically .3bs/install
 echo '3bs installed.'
