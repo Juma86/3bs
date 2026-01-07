@@ -5,7 +5,7 @@ set -xe
 echo 'Installing 3bs into local directory...'
 
 cd `dirname $0` # Typically .3bs
-    cp Parent/* ../ -fr
+    \cp Parent/* ../ -r -f
     rm -fr Parent
 cd -
 
