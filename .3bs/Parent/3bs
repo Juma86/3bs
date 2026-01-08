@@ -14,19 +14,21 @@ then
     exit $?
 fi
 
-_build() {
+source .3bs/Utility/3bs/*.sh
+
+_Build() {
     echo "Building project..."
     echo "Arguments: $@"
     # Build logic here
 }
 
-_test() {
+_Test() {
     echo "Running tests..."
     echo "Arguments: $@"
     # Test logic here
 }
 
-_help() {
+_Help() {
     echo "Available commands:"
     echo "  build               Build the project"
     echo "  test                Run tests"
@@ -37,24 +39,28 @@ _help() {
     echo "  get-dependencies    Get project dependencies"
 }
 
-_clean() {
+_Clean() {
     echo "Cleaning project..."
     echo "Arguments: $@"
     # Clean logic here
 }
 
-_update() {
+_Update() {
     echo "Updating project..."
     echo "Arguments: $@"
+
+    tmp=$(_CreateTempIfNotExists Update)
+
+
     # Update logic here
 }
 
-_version() {
+_Version() {
     echo "Project version: 1.0.0"
     # Version logic here
 }
 
-_get_dependencies() {
+_GetDependencies() {
     echo "Retrieving dependencies..."
     echo "Arguments: $@"
 
@@ -69,25 +75,25 @@ fi
 
 case $1 in
     "build" )
-        shift && _build $@
+        shift && _Build $@
         ;;
     "test" )
-        shift && _test $@
+        shift && _Test $@
         ;;
     "help" )
-        shift && _help $@
+        shift && _Help $@
         ;;
     "clean" )
-        shift && _clean $@
+        shift && _Clean $@
         ;;
     "update" )
-        shift && _update $@
+        shift && _Update $@
         ;;
     "version" )
-        shift && _version $@
+        shift && _Version $@
         ;;
     "get-dependencies" )
-        shift && _get_dependencies $@
+        shift && _GetDependencies $@
         ;;
     * )
         echo "Command not found"
