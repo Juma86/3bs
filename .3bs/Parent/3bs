@@ -70,9 +70,14 @@ _Update() {
     # Checkout current version from current.ver
     git -C "$tmp/Current" checkout "$(cat .3bs/Asset/current.ver)"
 
-    # Install both versions
+    # Install both versions, inform them not to create git repositories
     (cd "$tmp/Current" && sh .3bs/install --prohibit-git) && \
     (cd "$tmp/Target"  && sh .3bs/install --prohibit-git) && wait
+
+    # Manually remove any git repositories created during install
+    # Some older versions of 3bs do not support the --prohibit-git flag
+    rm -fr "$tmp/Current/.git"
+    rm -fr "$tmp/Target/.git"
 
     # Calculate files in Target that aren't in Current
     files_to_copy=$(comm -23 \

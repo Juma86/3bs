@@ -33,7 +33,7 @@ then
     git commit -m "Initial commit." --quiet
     echo "Git repository initialized."
 else
-    echo "Git not found; skipping git repository initialization."
+    echo "Git not found, or has been prohibited; skipping git repository initialization."
 fi
 
 rm $0 # Remove this install script: typically .3bs/install
