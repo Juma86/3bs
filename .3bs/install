@@ -1,6 +1,11 @@
 #!/bin/sh
 
-set -xe
+set -e
+
+if [ "$1" = "dev-test" ]; then
+    shift
+    set -xe
+fi
 
 echo 'Installing 3bs into local directory...'
 
