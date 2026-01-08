@@ -58,17 +58,17 @@ _Update() {
     tmp="$(_CreateTempIfNotExists Update)"
 
     # Reclone build system
-    git clone https://github.com/Juma86/3bs.git "$tmp/Target"
+    git clone https://github.com/Juma86/3bs.git "$tmp/Target" --quiet
 
     # Work out target version to upgrade to, checkout that version as target
     target_hash=$(.3bs/Tool/Update/FindRoute "$tmp/Target")
-    git -C "$tmp/Target" checkout "$target_hash"
+    git -C "$tmp/Target" checkout "$target_hash" --quiet
 
     # Create worktree for current version
-    git -C "$tmp/Target" worktree add "$tmp/Current"
+    git -C "$tmp/Target" worktree add "$tmp/Current" --quiet
 
     # Checkout current version from current.ver
-    git -C "$tmp/Current" checkout "$(cat .3bs/Asset/current.ver)"
+    git -C "$tmp/Current" checkout "$(cat .3bs/Asset/current.ver)" --quiet
 
     # Install both versions, inform them not to create git repositories
     (cd "$tmp/Current" && sh .3bs/install --prohibit-git) && \
