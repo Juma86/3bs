@@ -79,6 +79,18 @@ _Update() {
     rm -fr "$tmp/Current/.git"
     rm -fr "$tmp/Target/.git"
 
+    # Handle files that are considered special cases
+    mkdir -p "$tmp/SpecialCase"
+
+    special_files=(".gitignore")
+    for special_file in "${special_files[@]}"; do
+        if [ "$(sha256sum "$tmp/Target/$special_file" | cut -d' ' -f1)" != "$(sha256sum "$tmp/Current/$special_file" | cut -d' ' -f1)" ]; then
+            echo "$special_file differs between versions; treating as special case."
+            mv "$tmp/Target/$special_file" "$tmp/SpecialCase/$special_file"
+            test -f "$tmp/Current/$special_file" && rm "$tmp/Current/$special_file"
+        fi
+    done
+
     # Calculate files in Target that aren't in Current
     files_to_copy=$(comm -23 \
         <(cd "$tmp/Target"  && find . -type f | sort) \
@@ -115,6 +127,9 @@ _Update() {
 
     echo "Files to update:"
     echo "$files_to_update"
+
+    echo "Special case files:"
+    ls "$tmp/SpecialCase"
 
     # Copy needed files to Origin
 
