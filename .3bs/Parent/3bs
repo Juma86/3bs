@@ -151,14 +151,14 @@ _Update() {
             echo "Warning: '$file' has been modified in the origin."
 
             valid_user_response=false
-            while [ ! valid_user_response ]; do
+            while [ $valid_user_response != true ]; do
                 echo -ne "\tDo you want to overwrite this file? (Y/n) : "
                 read answer
                 if [ "$answer" = "Y" ] || [ "$answer" = "y" ] || [ "$answer" = "" ]; then
                     cp "$tmp/Target/$file" "$file"
                     echo "'$file' has been updated."
                     valid_user_response=true
-                else if [ "$answer" = "N" ] || [ "$answer" = "n" ]; then
+                elif [ "$answer" = "N" ] || [ "$answer" = "n" ]; then
                     echo "Skipping update of '$file'"
                     valid_user_response=true
                 else
