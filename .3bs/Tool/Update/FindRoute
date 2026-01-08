@@ -18,10 +18,22 @@ update_paths="$(comm -12 \
     <(echo "$significant" | sort)\
 )"
 
-annotated_paths="$(echo $update_paths | git name-rev --annotate-stdin)"
+annotated_paths="$(echo $update_paths | git name-rev --annotate-stdin | nl -w2 -s' -> ')"
 
 format() {
-    echo "$1" | sed 's/(/\| /g;s|/[^| ]*/|/|g;s|[^| ]*/||g;s/)//g;s/\n/\n 1) /g'
+    echo "$1" | sed 's/(/\| /g;s|/[^| ]*/|/|g;s|[^| ]*/||g;s/)//g'
 }
 
-format "$annotated_paths"
+# format "$annotated_paths" | nl -w2 -s' -> ' | tac | head -n1 | cut -f2- | format | sed 's/|/ -> /g'
+
+{
+    format "$annotated_paths"
+
+    echo -ne "\nWhich branch do you wish to update to: "
+    read -r answer
+    branch=${update_paths[answer-1]}
+
+    echo "selecting branch: $branch"   # log to stderr so it doesn't go to caller
+
+    echo $branch
+} | tee /dev/tty | tail -n1
