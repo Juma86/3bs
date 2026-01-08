@@ -1,12 +1,84 @@
-#!/bin/sh
+#!/bin/bash
 
 set -xe
 
-function main() {
-    echo "Hello from .3bs/Parent/3bs"
-
-    return 0
+_build() {
+    echo "Building project..."
+    echo "Arguments: $@"
+    # Build logic here
 }
 
-main "$@"
-exit $?
+_test() {
+    echo "Running tests..."
+    echo "Arguments: $@"
+    # Test logic here
+}
+
+_help() {
+    echo "Available commands:"
+    echo "  build               Build the project"
+    echo "  test                Run tests"
+    echo "  help                Show this help message"
+    echo "  clean               Clean build artifacts"
+    echo "  update              Update dependencies"
+    echo "  version             Show version information"
+    echo "  get-dependencies    Get project dependencies"
+}
+
+_clean() {
+    echo "Cleaning project..."
+    echo "Arguments: $@"
+    # Clean logic here
+}
+
+_update() {
+    echo "Updating project..."
+    echo "Arguments: $@"
+    # Update logic here
+}
+
+_version() {
+    echo "Project version: 1.0.0"
+    # Version logic here
+}
+
+_get_dependencies() {
+    echo "Retrieving dependencies..."
+    echo "Arguments: $@"
+
+    cat deps.json | handlerpath=".3bs/Asset" .3bs/Tool/get-dependencies
+    # Get dependencies logic here
+}
+
+if [ "$1:0:1" == "_" ] || [ "$1" == "" ]; then
+    echo "Command not found"
+    exit 1
+fi
+
+case $1 in
+    "build" )
+        shift && _build $@
+        ;;
+    "test" )
+        shift && _test $@
+        ;;
+    "help" )
+        shift && _help $@
+        ;;
+    "clean" )
+        shift && _clean $@
+        ;;
+    "update" )
+        shift && _update $@
+        ;;
+    "version" )
+        shift && _version $@
+        ;;
+    "get-dependencies" )
+        shift && _get_dependencies $@
+        ;;
+    * )
+        echo "Command not found"
+        exit 1
+        ;;
+esac
