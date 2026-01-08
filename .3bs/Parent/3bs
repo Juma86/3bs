@@ -14,20 +14,24 @@ then
     exit $?
 fi
 
+# Load utility functions
 source .3bs/Utility/3bs/*.sh
 
+# Build the project
 _Build() {
     echo "Building project..."
     echo "Arguments: $@"
     # Build logic here
 }
 
+# Run user-defined unit-tests
 _Test() {
     echo "Running tests..."
     echo "Arguments: $@"
     # Test logic here
 }
 
+# Show help information
 _Help() {
     echo "Available commands:"
     echo "  build               Build the project"
@@ -39,27 +43,94 @@ _Help() {
     echo "  get-dependencies    Get project dependencies"
 }
 
+# Clean build artifacts
 _Clean() {
     echo "Cleaning project..."
     echo "Arguments: $@"
     # Clean logic here
 }
 
+# Update the build system to a more recent version
 _Update() {
     echo "Updating project..."
-    echo "Arguments: $@"
 
-    tmp=$(_CreateTempIfNotExists Update)
+    # Create temp directory
+    tmp="$(_CreateTempIfNotExists Update)"
 
+    # Reclone build system
+    git clone https://github.com/Juma86/3bs.git "$tmp/Target"
+
+    # Work out target version to upgrade to, checkout that version as target
+    target_hash=$(Tool/Update/FindRoute "$tmp/Target")
+    git -C "$tmp/Target" checkout "$target_hash"
+
+    # Create worktree for current version
+    git -C "$tmp/Target" worktree add "$tmp/Current"
+
+    # Checkout current version from current.ver
+    git -C "$tmp/Current" checkout "$(cat .3bs/Asset/current.ver)"
+
+    # Calculate files in Target that aren't in Current
+    files_to_copy=$(comm -23 \
+        <(cd "$tmp/Target"  && find . -type f | sort) \
+        <(cd "$tmp/Current" && find . -type f | sort) \
+    )
+
+    # Calculate files in Current that aren't in Target
+    files_to_purge=$(comm -23 \
+        <(cd "$tmp/Current" && find . -type f | sort) \
+        <(cd "$tmp/Target"  && find . -type f | sort) \
+    )
+
+    # Calculate files in both with differing sha256 hashes
+    files_in_both=$(comm -12 \
+        <(cd "$tmp/Target"  && find . -type f | sort) \
+        <(cd "$tmp/Current" && find . -type f | sort) \
+    )
+
+    files_to_update=""
+    for file in $files_in_both; do
+        hash_current=$(sha256sum "$tmp/Current/$file" | cut -d' ' -f1)
+        hash_target=$(sha256sum "$tmp/Target/$file" | cut -d' ' -f1)
+        
+        if [ "$hash_current" != "$hash_target" ]; then
+            files_to_update="$files_to_update $file"
+        fi
+    done
+
+    echo "Files to remove:"
+    echo "$files_to_purge"
+
+    echo "Files to copy:"
+    echo "$files_to_copy"
+
+    echo "Files to update:"
+    echo "$files_to_update"
+
+    # Copy needed files to Origin
+
+    # Purge unneeded files from Origin
+
+    # Inform user of files being updated that they have been edited in the Origin
+
+    # Update needed files in Origin
+
+    # Finalize update
+
+    # Cleanup temp directory
+    _RemoveTemp Update
+
+    echo "Build system updated."
 
     # Update logic here
 }
 
+# Show version information
 _Version() {
     echo "Project version: 1.0.0"
-    # Version logic here
 }
 
+# Get project dependencies from deps.json
 _GetDependencies() {
     echo "Retrieving dependencies..."
     echo "Arguments: $@"
@@ -68,11 +139,13 @@ _GetDependencies() {
     # Get dependencies logic here
 }
 
+# Don't allow calling internal functions or empty commands
 if [ "$1:0:1" == "_" ] || [ "$1" == "" ]; then
     echo "Command not found"
     exit 1
 fi
 
+# Translate CLI arg to function call
 case $1 in
     "build" )
         shift && _Build $@
