@@ -64,7 +64,8 @@ _Update() {
     target_hash=$(.3bs/Tool/Update/FindRoute "$tmp/Target")
     if [ -z "$target_hash" ]; then
         echo "Failed to determine target version for update, or project is already up-to-date."
-        exit 0
+        _RemoveTemp Update
+        exit $?
     fi
 
     git -C "$tmp/Target" checkout "$target_hash" --quiet
@@ -247,3 +248,5 @@ case $1 in
         exit 1
         ;;
 esac
+
+echo "End of program"
