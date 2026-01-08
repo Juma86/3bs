@@ -8,3 +8,8 @@ _CreateTempIfNotExists() {
 
     echo "$temp_dir"
 }
+
+_RemoveTemp() {
+    temp_dir="$(readlink -f "$(dirname "$0")")/.3bs/Temp/$1"
+    rm -rf "$temp_dir"
+}

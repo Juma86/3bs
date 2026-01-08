@@ -142,7 +142,7 @@ _Update() {
         rm -f "$file"
     done
 
-    # Inform user of files being updated that they have been edited in the Origin
+    # Update files in Origin, inform user if they may have modified a file
     for file in $files_to_update; do
         hash_origin=$(sha256sum "$file" | cut -d' ' -f1)
         hash_current=$(sha256sum "$tmp/Current/$file" | cut -d' ' -f1)
@@ -171,9 +171,12 @@ _Update() {
         fi
     done
 
-    # Update needed files in Origin
+    # Handle special cases
+    test -f "$tmp/SpecialCase/.gitignore" && \
+        cat "$tmp/SpecialCase/.gitignore" >> .gitignore
 
     # Finalize update
+
 
     # Cleanup temp directory
     _RemoveTemp Update
