@@ -1,6 +1,18 @@
 #!/bin/bash
 
-set -xe
+if [ "$1" = "dev-test" ]; then
+    shift
+    set -xe
+else
+    set -e
+fi
+
+if [ "$(ps -p $$ -o comm=)" = "sh" ]
+then
+    # echo "This script does not support sh. Re-invoking with bash..."
+    /bin/bash $0 $@
+    exit $?
+fi
 
 _build() {
     echo "Building project..."
