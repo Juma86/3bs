@@ -129,13 +129,47 @@ _Update() {
     echo "$files_to_update"
 
     echo "Special case files:"
-    ls "$tmp/SpecialCase"
+    ls -A "$tmp/SpecialCase/"
 
-    # Copy needed files to Origin
+    # Copy files to Origin
+    for file in $files_to_copy; do
+        mkdir -p "$(dirname "$file")"
+        cp "$tmp/Target/$file" "$file"
+    done
 
-    # Purge unneeded files from Origin
+    # Purge files from Origin
+    for file in $files_to_purge; do
+        rm -f "$file"
+    done
 
     # Inform user of files being updated that they have been edited in the Origin
+    for file in $files_to_update; do
+        hash_origin=$(sha256sum "$file" | cut -d' ' -f1)
+        hash_current=$(sha256sum "$tmp/Current/$file" | cut -d' ' -f1)
+
+        if [ "$hash_origin" != "$hash_current" ]; then
+            echo "Warning: '$file' has been modified in the origin."
+
+            valid_user_response=false
+            while [ ! valid_user_response ]; do
+                echo -ne "\tDo you want to overwrite this file? (Y/n) : "
+                read answer
+                if [ "$answer" = "Y" ] || [ "$answer" = "y" ] || [ "$answer" = "" ]; then
+                    cp "$tmp/Target/$file" "$file"
+                    echo "'$file' has been updated."
+                    valid_user_response=true
+                else if [ "$answer" = "N" ] || [ "$answer" = "n" ]; then
+                    echo "Skipping update of '$file'"
+                    valid_user_response=true
+                else
+                    echo "Invalid input."
+                fi
+            done
+        else
+            cp "$tmp/Target/$file" "$file"
+            echo "'$file' has been updated."
+        fi
+    done
 
     # Update needed files in Origin
 
