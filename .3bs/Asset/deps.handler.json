@@ -1,0 +1,9 @@
+{
+    "git" : "git clone --depth 1 {} \"§ProjectRoot§/Dependency/§RepoName§\"",
+    "gh"  : "git clone --depth 1 https://github.com/{}.git \"§ProjectRoot§/Dependency/§RepoName§\""
+
+  , "environment" : {
+        "ProjectRoot" : "`pwd`"
+      , "RepoName"    : "`basename -s .git '{}'`"
+    }
+}
