@@ -1,0 +1,9 @@
+_CreateTempIfNotExists() {
+    current_dir="$(readlink -f "$(dirname "$0")")"
+    temp_dir="$current_dir/.3bs/Temp"
+    if [ ! -d "$temp_dir" ]; then
+        mkdir -p "$temp_dir"
+    fi
+
+    echo "$temp_dir/$1"
+}
