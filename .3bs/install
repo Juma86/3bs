@@ -4,6 +4,13 @@ set -xe
 
 echo 'Installing 3bs into local directory...'
 
+
+prohibit_git=false
+for arg in "$@"; do
+    [ "$arg" = "--prohibit-git" ] && \
+        prohibit_git=true && break
+done
+
 cd `dirname $0` # Typically .3bs
     git rev-parse HEAD > Asset/current.ver
     \cp Parent/. .. -far
@@ -18,7 +25,7 @@ printf "{\n}" > deps.json
 mkdir Source
 
 # Create a git repository if git is available.
-if command -v git &> /dev/null
+if command -v git &> /dev/null && [ "$prohibit_git" = false ]
 then
     echo "Initializing git repository..."
     git init . --quiet

@@ -70,6 +70,10 @@ _Update() {
     # Checkout current version from current.ver
     git -C "$tmp/Current" checkout "$(cat .3bs/Asset/current.ver)"
 
+    # Install both versions
+    (cd "$tmp/Current" && sh .3bs/install --prohibit-git) && \
+    (cd "$tmp/Target"  && sh .3bs/install --prohibit-git) && wait
+
     # Calculate files in Target that aren't in Current
     files_to_copy=$(comm -23 \
         <(cd "$tmp/Target"  && find . -type f | sort) \
