@@ -5,6 +5,7 @@ set -xe
 echo 'Installing 3bs into local directory...'
 
 cd `dirname $0` # Typically .3bs
+    git rev-parse HEAD > Asset/current.ver
     \cp Parent/. .. -far
     rm -fr Parent
 cd -
@@ -20,10 +21,12 @@ mkdir Source
 if command -v git &> /dev/null
 then
     echo "Initializing git repository..."
-    git init
-    git add .
-    git commit -m "Initial commit."
+    git init . --quiet
+    git add . --all
+    git commit -m "Initial commit." --quiet
     echo "Git repository initialized."
+else
+    echo "Git not found; skipping git repository initialization."
 fi
 
 rm $0 # Remove this install script: typically .3bs/install
