@@ -61,7 +61,7 @@ _Update() {
     git clone https://github.com/Juma86/3bs.git "$tmp/Target"
 
     # Work out target version to upgrade to, checkout that version as target
-    target_hash=$(Tool/Update/FindRoute "$tmp/Target")
+    target_hash=$(.3bs/Tool/Update/FindRoute "$tmp/Target")
     git -C "$tmp/Target" checkout "$target_hash"
 
     # Create worktree for current version
