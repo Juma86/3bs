@@ -1,4 +1,5 @@
 # 3bs related rules
+.3bs/Temp/
 Temp/
 Build/
 Dependency/
