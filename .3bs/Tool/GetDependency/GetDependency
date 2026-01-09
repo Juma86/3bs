@@ -1,5 +1,7 @@
 #!/bin/bash
 
+here="`readlink -f "`dirname ${BASH_SOURCE[0]}`"`"
+
 echo "Retrieving dependencies..."
 echo "Arguments: $@"
 
@@ -7,7 +9,7 @@ rm -fr Dependency/
 
 ConsoleCommands=$(
     cat deps.json | handlerpath=".3bs/Asset" \
-        .3bs/Tool/GetDependency/ResolveConsoleCommands
+        $here/ResolveConsoleCommands
 )
 
 bash -c "$ConsoleCommands"

@@ -1,6 +1,13 @@
 #!/bin/bash
 
-echo "Updating project..."
+here="`readlink -f $(dirname ${BASH_SOURCE[0]})`"
+this="`basename ${BASH_SOURCE[0]} .util.sh`"
+
+# Load utility functions
+source .3bs/Utility/General/*.util.sh \
+       .3bs/Utility/$this/*.util.sh
+
+_DisplayTrace "Updating project..."
 
 # Create temp directory
 tmp="$(_CreateTempIfNotExists Update)"
@@ -11,7 +18,7 @@ git clone https://github.com/Juma86/3bs.git "$tmp/Target" --quiet
 # Work out target version to upgrade to, checkout that version as target
 target_hash=$(.3bs/Tool/Update/FindRoute "$tmp/Target")
 if [ -z "$target_hash" ]; then
-    echo "Failed to determine target version for update, or project is already up-to-date."
+    _DisplayInfo "Project is already up-to-date."
     _RemoveTemp Update
     exit $?
 fi
@@ -39,7 +46,7 @@ mkdir -p "$tmp/SpecialCase"
 special_files=(".gitignore")
 for special_file in "${special_files[@]}"; do
     if [ "$(sha256sum "$tmp/Target/$special_file" | cut -d' ' -f1)" != "$(sha256sum "$tmp/Current/$special_file" | cut -d' ' -f1)" ]; then
-        echo "$special_file differs between versions; treating as special case."
+        _DisplayInfo "$special_file differs between versions; treating as special case."
         mv "$tmp/Target/$special_file" "$tmp/SpecialCase/$special_file"
         test -f "$tmp/Current/$special_file" && rm "$tmp/Current/$special_file"
     fi
@@ -63,6 +70,7 @@ files_in_both=$(comm -12 \
     <(cd "$tmp/Current" && find . -type f | sort) \
 )
 
+# Determine which files need updating
 files_to_update=""
 for file in $files_in_both; do
     hash_current=$(sha256sum "$tmp/Current/$file" | cut -d' ' -f1)
@@ -74,23 +82,23 @@ for file in $files_in_both; do
 done
 
 if [ -n "$files_to_purge" ]; then
-    echo "Files to remove:"
-    echo "$files_to_purge"
+    _DisplayTrace "Files to remove:"
+    _DisplayTrace "$files_to_purge"
 fi
 
 if [ -n "$files_to_copy" ]; then
-    echo "Files to copy:"
-    echo "$files_to_copy"
+    _DisplayTrace "Files to copy:"
+    _DisplayTrace "$files_to_copy"
 fi
 
 if [ -n "$files_to_update" ]; then
-    echo "Files to update:"
-    echo "$files_to_update"
+    _DisplayTrace "Files to update:"
+    _DisplayTrace "$files_to_update"
 fi
 
 if [ -n "$(ls -A "$tmp/SpecialCase/")" ]; then
-    echo "Special case files:"
-    ls -A "$tmp/SpecialCase/"
+    _DisplayTrace "Special case files:"
+    _DisplayTrace "$(ls -A "$tmp/SpecialCase/")"
 fi
 
 # Copy files to Origin
@@ -110,26 +118,26 @@ for file in $files_to_update; do
     hash_current=$(sha256sum "$tmp/Current/$file" | cut -d' ' -f1)
 
     if [ "$hash_origin" != "$hash_current" ]; then
-        echo "Warning: '$file' has been modified in the origin."
+        _DisplayWarning "'$file' has been modified in the origin."
 
         valid_user_response=false
         while [ $valid_user_response != true ]; do
-            echo -ne "\tDo you want to overwrite this file? (Y/n) : "
+            _DisplayInfo -ne "\tDo you want to overwrite this file? (Y/n) : "
             read answer
             if [ "$answer" = "Y" ] || [ "$answer" = "y" ] || [ "$answer" = "" ]; then
                 cp "$tmp/Target/$file" "$file"
-                echo "'$file' has been updated."
+                _DisplayTrace "'$file' has been updated."
                 valid_user_response=true
             elif [ "$answer" = "N" ] || [ "$answer" = "n" ]; then
-                echo "Skipping update of '$file'"
+                _DisplayTrace "Skipping update of '$file'"
                 valid_user_response=true
             else
-                echo "Invalid input."
+                _DisplayInfo "Invalid input."
             fi
         done
     else
         cp "$tmp/Target/$file" "$file"
-        echo "'$file' has been updated."
+        _DisplayTrace "'$file' has been updated."
     fi
 done
 
@@ -143,4 +151,4 @@ test -f "$tmp/SpecialCase/.gitignore" && \
 # Cleanup temp directory
 _RemoveTemp Update
 
-echo "Build system updated."
+_DisplayTrace "Build system updated."

@@ -1,5 +1,13 @@
 #!/bin/bash
 
+_SourceUtilities() {
+    local this="$(dirname "${BASH_SOURCE[0]}")"
+
+    source .3bs/Utility/General/*.util.sh
+    source .3bs/Utility/3bs/*.util.sh
+}; _SourceUtilities
+
+# If we are in dev-test mode, enable debug and shift args
 devtoggle=""
 if [ "$1" = "dev-test" ]; then
     devtoggle="$1"
@@ -16,8 +24,6 @@ then
     exit $?
 fi
 
-# Load utility functions
-source .3bs/Utility/3bs/*.sh
 
 # Build the project
 _Build() {
