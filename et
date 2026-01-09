@@ -1,0 +1,65 @@
+[1mdiff --git a/.3bs/Parent/3bs b/.3bs/Parent/3bs[m
+[1mindex 3a4d64f..7a0bcbe 100755[m
+[1m--- a/.3bs/Parent/3bs[m
+[1m+++ b/.3bs/Parent/3bs[m
+[36m@@ -76,7 +76,7 @@[m [mcase $1 in[m
+     "version" )[m
+         shift && _Version $@[m
+         ;;[m
+[31m-    "get-dependencies" )[m
+[32m+[m[32m    "GetDependency" )[m
+         shift && .3bs/Tool/GetDependency/GetDependency $devtoggle $@[m
+         ;;[m
+     * )[m
+[1mdiff --git a/.3bs/Tool/GetDependency/GetDependency b/.3bs/Tool/GetDependency/GetDependency[m
+[1mindex 79eec18..8a58b05 100644[m
+[1m--- a/.3bs/Tool/GetDependency/GetDependency[m
+[1m+++ b/.3bs/Tool/GetDependency/GetDependency[m
+[36m@@ -3,5 +3,17 @@[m
+ echo "Retrieving dependencies..."[m
+ echo "Arguments: $@"[m
+ [m
+[31m-cat deps.json | handlerpath=".3bs/Asset" .3bs/Tool/GetDependency/ResolveConsoleCommands[m
+[31m-# Get dependencies logic here[m
+\ No newline at end of file[m
+[32m+[m[32mrm -fr Dependency/[m
+[32m+[m
+[32m+[m[32mConsoleCommands=$([m
+[32m+[m[32m    cat deps.json | handlerpath=".3bs/Asset" \[m
+[32m+[m[32m        .3bs/Tool/GetDependency/ResolveConsoleCommands[m
+[32m+[m[32m)[m
+[32m+[m
+[32m+[m[32mbash -c "$ConsoleCommands"[m
+[32m+[m
+[32m+[m[32mfor Dependency in `ls -A Dependency/`[m
+[32m+[m[32mdo[m
+[32m+[m[32m    handler="Tool/DependencyHandler/$Dependency"[m
+[32m+[m[32m    test -f $handler && bash $handler Transform[m
+[32m+[m[32mdone[m
+\ No newline at end of file[m
+[1mdiff --git a/README.md b/README.md[m
+[1mindex c81f39a..6a9c6ca 100644[m
+[1m--- a/README.md[m
+[1m+++ b/README.md[m
+[36m@@ -3,9 +3,17 @@[m
+ A clean, opinionated &amp; simple build system for small to medium sized projects, written in C.[m
+ Allowing for easy dependency management and cross-platform building / testing.  [m
+ [m
+[31m-To install:[m
+[32m+[m[32m## To install[m[41m  [m
+ [m
+     . Run sh .3bs/install in the root of the repo.  [m
+[31m-    . Scaffold directories will be created.[m
+[31m-    . Internal unneeded files for 3bs are automatically stripped out for a leaner environment.[m
+[31m-    . If git is available, a git repository will be created for your convenvience.[m
+[32m+[m[32m    . Scaffold directories will be created.[m[41m  [m
+[32m+[m[32m    . Internal unneeded files for 3bs are automatically stripped out for a leaner environment.[m[41m  [m
+[32m+[m[32m    . If git is available, a git repository will be created for your convenvience.[m[41m  [m
+[32m+[m
+[32m+[m[32m## 3bs Guide[m[41m  [m
+[32m+[m
+[32m+[m[32m    Managing dependencies:[m
+[32m+[m
+[32m+[m[32m        . deps.json is where you notate dependencies e.g. {"gh":["Torvalds/Linux"],"git":["someurl"]}[m
+[32m+[m[32m        . When a dependency is installed with ```sh 3bs GetDependency``` Tool/DependencyHandler/DependencyName Transform() is called.[m[41m  [m
+[32m+[m[32m            It is within Transform() that you write the code that handles the dependency ready for use.[m[41m  [m

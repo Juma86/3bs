@@ -3,5 +3,17 @@
 echo "Retrieving dependencies..."
 echo "Arguments: $@"
 
-cat deps.json | handlerpath=".3bs/Asset" .3bs/Tool/GetDependency/ResolveConsoleCommands
-# Get dependencies logic here
+rm -fr Dependency/
+
+ConsoleCommands=$(
+    cat deps.json | handlerpath=".3bs/Asset" \
+        .3bs/Tool/GetDependency/ResolveConsoleCommands
+)
+
+bash -c "$ConsoleCommands"
+
+for Dependency in `ls -A Dependency/`
+do
+    handler="Tool/DependencyHandler/$Dependency"
+    test -f $handler && bash $handler Transform
+done

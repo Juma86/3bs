@@ -76,7 +76,7 @@ case $1 in
     "version" )
         shift && _Version $@
         ;;
-    "get-dependencies" )
+    "GetDependency" )
         shift && .3bs/Tool/GetDependency/GetDependency $devtoggle $@
         ;;
     * )
