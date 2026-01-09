@@ -35,5 +35,5 @@ format() {
 
     echo "selecting branch: $branch"   # log to stderr so it doesn't go to caller
 
-    echo $branch
-} | tee /dev/tty | tail -n1
+    echo "$branch"
+} | tee /dev/tty | tail -n1 # If branch is empty, this will return gibberish! /// IMPORTANT: FIX!
