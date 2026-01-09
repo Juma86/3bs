@@ -1,0 +1,146 @@
+#!/bin/bash
+
+echo "Updating project..."
+
+# Create temp directory
+tmp="$(_CreateTempIfNotExists Update)"
+
+# Reclone build system
+git clone https://github.com/Juma86/3bs.git "$tmp/Target" --quiet
+
+# Work out target version to upgrade to, checkout that version as target
+target_hash=$(.3bs/Tool/Update/FindRoute "$tmp/Target")
+if [ -z "$target_hash" ]; then
+    echo "Failed to determine target version for update, or project is already up-to-date."
+    _RemoveTemp Update
+    exit $?
+fi
+
+git -C "$tmp/Target" checkout "$target_hash" --quiet
+
+# Create worktree for current version
+git -C "$tmp/Target" worktree add "$tmp/Current" --quiet
+
+# Checkout current version from current.ver
+git -C "$tmp/Current" checkout "$(cat .3bs/Asset/current.ver)" --quiet
+
+# Install both versions, inform them not to create git repositories
+(cd "$tmp/Current" && sh .3bs/install --prohibit-git) && \
+(cd "$tmp/Target"  && sh .3bs/install --prohibit-git) && wait
+
+# Manually remove any git repositories created during install
+# Some older versions of 3bs do not support the --prohibit-git flag
+rm -fr "$tmp/Current/.git"
+rm -fr "$tmp/Target/.git"
+
+# Handle files that are considered special cases
+mkdir -p "$tmp/SpecialCase"
+
+special_files=(".gitignore")
+for special_file in "${special_files[@]}"; do
+    if [ "$(sha256sum "$tmp/Target/$special_file" | cut -d' ' -f1)" != "$(sha256sum "$tmp/Current/$special_file" | cut -d' ' -f1)" ]; then
+        echo "$special_file differs between versions; treating as special case."
+        mv "$tmp/Target/$special_file" "$tmp/SpecialCase/$special_file"
+        test -f "$tmp/Current/$special_file" && rm "$tmp/Current/$special_file"
+    fi
+done
+
+# Calculate files in Target that aren't in Current
+files_to_copy=$(comm -23 \
+    <(cd "$tmp/Target"  && find . -type f | sort) \
+    <(cd "$tmp/Current" && find . -type f | sort) \
+)
+
+# Calculate files in Current that aren't in Target
+files_to_purge=$(comm -23 \
+    <(cd "$tmp/Current" && find . -type f | sort) \
+    <(cd "$tmp/Target"  && find . -type f | sort) \
+)
+
+# Calculate files in both with differing sha256 hashes
+files_in_both=$(comm -12 \
+    <(cd "$tmp/Target"  && find . -type f | sort) \
+    <(cd "$tmp/Current" && find . -type f | sort) \
+)
+
+files_to_update=""
+for file in $files_in_both; do
+    hash_current=$(sha256sum "$tmp/Current/$file" | cut -d' ' -f1)
+    hash_target=$(sha256sum "$tmp/Target/$file" | cut -d' ' -f1)
+    
+    if [ "$hash_current" != "$hash_target" ]; then
+        files_to_update="$files_to_update $file"
+    fi
+done
+
+if [ -n "$files_to_purge" ]; then
+    echo "Files to remove:"
+    echo "$files_to_purge"
+fi
+
+if [ -n "$files_to_copy" ]; then
+    echo "Files to copy:"
+    echo "$files_to_copy"
+fi
+
+if [ -n "$files_to_update" ]; then
+    echo "Files to update:"
+    echo "$files_to_update"
+fi
+
+if [ -n "$(ls -A "$tmp/SpecialCase/")" ]; then
+    echo "Special case files:"
+    ls -A "$tmp/SpecialCase/"
+fi
+
+# Copy files to Origin
+for file in $files_to_copy; do
+    mkdir -p "$(dirname "$file")"
+    cp "$tmp/Target/$file" "$file"
+done
+
+# Purge files from Origin
+for file in $files_to_purge; do
+    rm -f "$file"
+done
+
+# Update files in Origin, inform user if they may have modified a file
+for file in $files_to_update; do
+    hash_origin=$(sha256sum "$file" | cut -d' ' -f1)
+    hash_current=$(sha256sum "$tmp/Current/$file" | cut -d' ' -f1)
+
+    if [ "$hash_origin" != "$hash_current" ]; then
+        echo "Warning: '$file' has been modified in the origin."
+
+        valid_user_response=false
+        while [ $valid_user_response != true ]; do
+            echo -ne "\tDo you want to overwrite this file? (Y/n) : "
+            read answer
+            if [ "$answer" = "Y" ] || [ "$answer" = "y" ] || [ "$answer" = "" ]; then
+                cp "$tmp/Target/$file" "$file"
+                echo "'$file' has been updated."
+                valid_user_response=true
+            elif [ "$answer" = "N" ] || [ "$answer" = "n" ]; then
+                echo "Skipping update of '$file'"
+                valid_user_response=true
+            else
+                echo "Invalid input."
+            fi
+        done
+    else
+        cp "$tmp/Target/$file" "$file"
+        echo "'$file' has been updated."
+    fi
+done
+
+# Handle special cases
+test -f "$tmp/SpecialCase/.gitignore" && \
+    cat "$tmp/SpecialCase/.gitignore" >> .gitignore
+
+# Finalize update
+
+
+# Cleanup temp directory
+_RemoveTemp Update
+
+echo "Build system updated."
