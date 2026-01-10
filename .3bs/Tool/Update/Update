@@ -1,11 +1,9 @@
 #!/bin/bash
 
+source .3bs/*essential.sh
+
 here="`readlink -f $(dirname ${BASH_SOURCE[0]})`"
 this="`basename ${BASH_SOURCE[0]} .util.sh`"
-
-# Load utility functions
-source .3bs/Utility/General/*.util.sh \
-       .3bs/Utility/$this/*.util.sh
 
 _DisplayTrace "Updating project..."
 

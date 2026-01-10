@@ -1,9 +1,11 @@
 #!/bin/bash
 
+source .3bs/*essential.sh
+
 here="`readlink -f "`dirname ${BASH_SOURCE[0]}`"`"
 
-echo "Retrieving dependencies..."
-echo "Arguments: $@"
+_DisplayTrace "Retrieving dependencies..."
+_DisplayTrace "Arguments: $@"
 
 rm -fr Dependency/
 

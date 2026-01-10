@@ -2,6 +2,8 @@
 
 set -e
 
+source .3bs/*essential.sh
+
 if [ "$1" = "dev-test" ]; then
     shift
     set -xe
