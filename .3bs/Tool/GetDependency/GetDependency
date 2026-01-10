@@ -2,7 +2,7 @@
 
 source .3bs/*essential.sh
 
-here="`readlink -f "`dirname ${BASH_SOURCE[0]}`"`"
+here=$(readlink -f $(dirname ${BASH_SOURCE[0]}))
 
 _DisplayTrace "Retrieving dependencies..."
 _DisplayTrace "Arguments: $@"
@@ -18,6 +18,14 @@ bash -c "$ConsoleCommands"
 
 for Dependency in `ls -A Dependency/`
 do
-    handler="Tool/DependencyHandler/$Dependency"
-    test -f $handler && bash $handler Transform
+    # If a handler exists, it would be at this path
+    echo dependency is: $Dependency
+    handler="Tool/Handler/Dependency/$Dependency"
+
+    # Create a temporary directory for a handler to transfer files to & from
+    tmpdir=$(mktemp -qdt 3bs.dependency.handler.Init.$Dependency.XXXXXX)
+    test -z "$tmpdir" && _DisplayError "temporary directory has not been set!\n\r\tExitting!" && exit 1
+
+    # If a handler exists, run its Init function
+    test -f "$handler" && bash "$handler" _Init "$tmpdir"
 done

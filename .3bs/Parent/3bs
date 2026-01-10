@@ -1,5 +1,12 @@
 #!/bin/bash
 
+if [ "$(ps -p $$ -o comm=)" = "sh" ]
+then
+    # echo "This script does not support sh. Re-invoking with bash..."
+    /bin/bash $0 $@
+    exit $?
+fi
+
 source .3bs/*essential.sh
 
 # If we are in dev-test mode, enable debug and shift args
@@ -11,14 +18,6 @@ if [ "$1" = "dev-test" ]; then
 else
     set -e
 fi
-
-if [ "$(ps -p $$ -o comm=)" = "sh" ]
-then
-    # echo "This script does not support sh. Re-invoking with bash..."
-    /bin/bash $0 $@
-    exit $?
-fi
-
 
 # Build the project
 _Build() {

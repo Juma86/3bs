@@ -1,0 +1,47 @@
+#!/bin/bash
+
+set -e
+
+# If started from sh restart in bash
+if [ -z "$BASH_VERSION" ]; then
+    /bin/bash $0 $@
+    exit $?
+fi
+
+# If dev-test passed, enable debug and shift arg
+devtest_toggle=0
+if [ "$1" = "dev-test" ]; then
+    shift
+    devtest_toggle=1
+    set -xe
+fi
+
+test () {
+
+    # If "clean" argument is given, remove test directory
+    if [ "$1" = "clean" ]; then
+        shift && rm -fr test
+    fi
+
+    # Create test directory if it does not exist and populate it
+    if [ ! -d "test" ]; then
+        mkdir test && cp -far `ls -A . | sed "s/test//g"` test/
+        rm -fr test/test # Remove nested test dir
+
+        # Run install script in test dir to set up 3bs there
+        if [ "$1" = "install" ]; then
+            pushd test
+                bash .3bs/install $([ $devtest_toggle -eq 1 ] && echo "dev-test")
+            popd
+        fi
+
+        exit 0
+    else
+        echo "Test directory already exists."
+        echo "Remove or rename the existing 'test' directory and try again."
+        exit 1
+    fi
+
+}
+
+$@

@@ -25,10 +25,13 @@ cd -
 
 rm LICENSE
 rm README.md
+rm devutil
 rm -fr .git
 
 printf "{\n}" > deps.json
 mkdir Source
+
+rm $0 # Remove this install script: typically .3bs/install
 
 # Create a git repository if git is available.
 if command -v git &> /dev/null && [ "$prohibit_git" = false ]
@@ -42,6 +45,5 @@ else
     _DisplayInfo "Git not found, or has been prohibited; skipping git repository initialization."
 fi
 
-rm $0 # Remove this install script: typically .3bs/install
 
 echo '3bs installed.'
