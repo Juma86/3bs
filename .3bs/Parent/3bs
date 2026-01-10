@@ -1,7 +1,7 @@
 #!/bin/bash
 
 _SourceUtilities() {
-    local this="$(dirname "${BASH_SOURCE[0]}")"
+    this="$(dirname "${BASH_SOURCE[0]}")"
 
     source .3bs/Utility/General/*.util.sh
     source .3bs/Utility/3bs/*.util.sh
