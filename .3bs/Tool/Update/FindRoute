@@ -37,7 +37,7 @@ fi
 {
     format "$annotated_paths"
 
-    _DisplayInfo -ne "\nWhich branch do you wish to update to: "
+    _DisplayInfo "Which branch do you wish to update to: " --no-newline
     read -r answer
     branch=${update_paths[answer-1]}
 

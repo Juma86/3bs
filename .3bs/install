@@ -9,8 +9,7 @@ if [ "$1" = "dev-test" ]; then
     set -xe
 fi
 
-echo 'Installing 3bs into local directory...'
-
+_DisplayTrace 'Installing 3bs into local directory...'
 
 prohibit_git=false
 for arg in "$@"; do
@@ -18,7 +17,7 @@ for arg in "$@"; do
         prohibit_git=true && break
 done
 
-cd `dirname $0` # Typically .3bs
+cd $(dirname $0) # Typically .3bs
     git rev-parse HEAD > Asset/current.ver
     \cp Parent/. .. -far
     rm -fr Parent
@@ -34,13 +33,13 @@ mkdir Source
 # Create a git repository if git is available.
 if command -v git &> /dev/null && [ "$prohibit_git" = false ]
 then
-    echo "Initializing git repository..."
+    _DisplayTrace "Initializing git repository..."
     git init . --quiet
     git add . --all
     git commit -m "Initial commit." --quiet
-    echo "Git repository initialized."
+    _DisplayTrace "Git repository initialized."
 else
-    echo "Git not found, or has been prohibited; skipping git repository initialization."
+    _DisplayInfo "Git not found, or has been prohibited; skipping git repository initialization."
 fi
 
 rm $0 # Remove this install script: typically .3bs/install

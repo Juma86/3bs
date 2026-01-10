@@ -1,11 +1,6 @@
 #!/bin/bash
 
-_SourceUtilities() {
-    this="$(dirname "${BASH_SOURCE[0]}")"
-
-    source .3bs/Utility/General/*.util.sh
-    source .3bs/Utility/3bs/*.util.sh
-}; _SourceUtilities
+source .3bs/*essential.sh
 
 # If we are in dev-test mode, enable debug and shift args
 devtoggle=""
@@ -86,7 +81,7 @@ case $1 in
         shift && .3bs/Tool/GetDependency/GetDependency $devtoggle $@
         ;;
     * )
-        echo "Command not found"
+        _DisplayError "Command not found"
         exit 1
         ;;
 esac

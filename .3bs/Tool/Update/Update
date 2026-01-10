@@ -2,9 +2,6 @@
 
 source .3bs/*essential.sh
 
-here="`readlink -f $(dirname ${BASH_SOURCE[0]})`"
-this="`basename ${BASH_SOURCE[0]} .util.sh`"
-
 _DisplayTrace "Updating project..."
 
 # Create temp directory
@@ -30,8 +27,8 @@ git -C "$tmp/Target" worktree add "$tmp/Current" --quiet
 git -C "$tmp/Current" checkout "$(cat .3bs/Asset/current.ver)" --quiet
 
 # Install both versions, inform them not to create git repositories
-(cd "$tmp/Current" && sh .3bs/install --prohibit-git) && \
-(cd "$tmp/Target"  && sh .3bs/install --prohibit-git) && wait
+(cd "$tmp/Current" && bash .3bs/install --prohibit-git > /dev/null) && \
+(cd "$tmp/Target"  && bash .3bs/install --prohibit-git > /dev/null) && wait
 
 # Manually remove any git repositories created during install
 # Some older versions of 3bs do not support the --prohibit-git flag
@@ -120,7 +117,7 @@ for file in $files_to_update; do
 
         valid_user_response=false
         while [ $valid_user_response != true ]; do
-            _DisplayInfo -ne "\tDo you want to overwrite this file? (Y/n) : "
+            _DisplayInfo "\tDo you want to overwrite this file? (Y/n) : " --no-newline
             read answer
             if [ "$answer" = "Y" ] || [ "$answer" = "y" ] || [ "$answer" = "" ]; then
                 cp "$tmp/Target/$file" "$file"
@@ -144,7 +141,6 @@ test -f "$tmp/SpecialCase/.gitignore" && \
     cat "$tmp/SpecialCase/.gitignore" >> .gitignore
 
 # Finalize update
-
 
 # Cleanup temp directory
 _RemoveTemp Update
