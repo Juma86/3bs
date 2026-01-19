@@ -14,7 +14,7 @@ _DisplayInfo() {
     _SetColour reset
 }
 _DisplayTrace() {
-    _SetColour white
+    _SetColour custom 60 60 60
         echo -ne "T: $1"
         if [ "$2" != "--no-newline" ]; then echo -ne "\n"; fi
     _SetColour reset

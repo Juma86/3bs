@@ -1,5 +1,7 @@
 #!/bin/bash
 
+source *install.util.sh
+
 set -e
 
 source .3bs/*essential.sh
